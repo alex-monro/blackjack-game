@@ -7,10 +7,40 @@
       content="Blackjack game simulation built with JavaScript"
     />
     <title>Blackjack</title>
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="css/normalize-fwd.css" />
+    <link rel="stylesheet" href="css/intro.css" />
+    <link rel="stylesheet" href="css/style.css" />
+
     <script src="js/deck.js" defer></script>
     <script src="js/game.js" defer></script>
   </head>
   <body>
-    <h1>Blackjack</h1>
+    <div class="intro-screen">
+      <div class="intro-text"></div>
+      <h1>Blackjack</h1>
+      <button id="play-btn">Play</button>
+    </div>
+
+    <main class="game-container">
+      <div class="dealer-area">
+        <h2>Dealer</h2>
+        <div class="dealer-cards"></div>
+        <p class="dealer-total"></p>
+      </div>
+
+      <div class="player-area">
+        <h2>Player</h2>
+        <div class="player-cards"></div>
+        <p class="player-total"></p>
+      </div>
+
+      <div class="controls">
+        <button id="hit-btn">Hit</button>
+        <button id="stand-btn">Stand</button>
+        <button id="play-again">Deal</button>
+      </div>
+    </main>
   </body>
 </html>

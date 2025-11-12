@@ -1,69 +1,164 @@
-//CARD VALUES
+//Starting Screen
+const introScrn = document.querySelector(".intro-screen");
+const playBtn = document.getElementById("play-btn");
+const gameContainer = document.querySelector(".game-container");
+const hitBtn = document.getElementById("hit-btn");
+const standBtn = document.getElementById("stand-btn");
+const playAgain = document.getElementById("play-again");
 
-const ranks = [
-  "Ace",
-  "2",
-  "3",
-  "4",
-  "5",
-  "6",
-  "7",
-  "8",
-  "9",
-  "10",
-  "Jack",
-  "Queen",
-  "King",
-];
-const suits = ["hearts", "diamonds", "clubs", "spades"];
+let deck;
+let playerHand;
+let dealerHand;
+let game;
 
-//CREATE DECK
+//game
+class Card {
+  constructor(suit, rank) {
+    this.suit = suit;
+    this.rank = rank;
+  }
 
-const deck = [];
+  value() {
+    if (this.rank === "Jack" || this.rank === "Queen" || this.rank === "King") {
+      return 10;
+    } else if (this.rank === "Ace") {
+      return 11;
+    } else {
+      return this.rank;
+    }
+  }
+}
 
-//PLAYER AND DEALER HANDS
-const playerHand = [];
-const dealerHand = [];
+class Deck {
+  constructor() {
+    this.cards = [];
+  }
 
-//INITIAL DECK
-for (let i = 8; i > 0; i--) {
-  suits.forEach((suit) => {
-    ranks.forEach((rank) => {
-      deck.push(rank + " of " + suit);
+  createDeck() {
+    const suits = ["♥", "♦", "♣", "♠"];
+    const ranks = ["Ace", 2, 3, 4, 5, 6, 7, 8, 9, 10, "Jack", "Queen", "King"];
+
+    suits.forEach((suit) => {
+      ranks.forEach((rank) => {
+        this.cards.push(new Card(suit, rank));
+      });
     });
-  });
-}
+    this.shuffle();
+  }
 
-console.log("Deck before shuffle:", deck);
-
-//SHUFFLE FUNCTION
-
-function shuffle(array) {
-  for (let i = array.length - 1; i > 0; i--) {
-    const random = Math.floor(Math.random() * (i + 1));
-
-    let temp = array[i];
-    array[i] = array[random];
-    array[random] = temp;
+  shuffle() {
+    for (let i = this.cards.length - 1; i > 0; i--) {
+      const random = Math.floor(Math.random() * (i + 1));
+      let temp = this.cards[i];
+      this.cards[i] = this.cards[random];
+      this.cards[random] = temp;
+    }
   }
 }
 
-//SHUFFLE DECK
+class Hand {
+  constructor() {
+    this.hand = [];
+  }
 
-shuffle(deck);
-console.log("Deck after shuffle:", deck);
+  addCard(card) {
+    this.hand.push(card);
+  }
 
-//DEAL CARDS
+  score() {
+    let score = 0;
+    this.hand.forEach((card) => {
+      score = score + card.value();
+    });
+    return score;
+  }
 
-function deal(hand, deck) {
-  for (let i = 2; i > 0; i--) {
-    let card = deck.pop();
-    hand.push(card);
+  checkBust() {
+    let score = this.score();
+    if (score > 21) {
+      return "busted";
+    }
+    return "safe";
   }
 }
 
-deal(playerHand, deck);
-deal(dealerHand, deck);
+class Game {
+  constructor(deck, playerHand, dealerHand) {
+    this.deck = deck;
+    this.playerHand = playerHand;
+    this.dealerHand = dealerHand;
+  }
 
-console.log("PlayerHand", playerHand);
-console.log("Dealer hand:", dealerHand);
+  start() {
+    for (let i = 2; i > 0; i--) {
+      let card = this.deck.cards.pop();
+      this.playerHand.addCard(card);
+      card = this.deck.cards.pop();
+      this.dealerHand.addCard(card);
+    }
+  }
+
+  hit() {
+    let card = this.deck.cards.pop();
+    this.playerHand.addCard(card);
+
+    let score = this.playerHand.score();
+    let result = this.playerHand.checkBust();
+    console.log(score, result);
+
+    if (result === "busted") {
+      console.log("YOU BUSTED!");
+      this.reset();
+    }
+  }
+
+  stand() {
+    let card = this.deck.cards.pop();
+    this.dealerHand.addCard(card);
+  }
+
+  reset() {
+    this.playerHand.hand = [];
+    this.dealerHand.hand = [];
+    this.deck = new Deck();
+    this.deck.createDeck();
+
+    hitBtn.disabled = true;
+    standBtn.disabled = true;
+    playAgain.style.display = "block";
+  }
+}
+
+// Initialize game
+deck = new Deck();
+deck.createDeck();
+
+playerHand = new Hand();
+dealerHand = new Hand();
+
+// Event listeners
+playBtn.addEventListener("click", () => {
+  introScrn.style.display = "none";
+  gameContainer.style.pointerEvents = "auto";
+  game = new Game(deck, playerHand, dealerHand);
+  game.start();
+  console.log(playerHand);
+  console.log(deck);
+});
+
+hitBtn.addEventListener("click", () => {
+  game.hit();
+  console.log(playerHand);
+});
+
+standBtn.addEventListener("click", () => {
+  game.stand();
+  console.log(dealerHand);
+});
+
+playAgain.addEventListener("click", () => {
+  playAgain.style.display = "none";
+  hitBtn.disabled = false;
+  standBtn.disabled = false;
+  game.start();
+});
