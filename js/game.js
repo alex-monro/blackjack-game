@@ -16,12 +16,13 @@ class Card {
   constructor(suit, rank) {
     this.suit = suit;
     this.rank = rank;
+    this.imageSrc = `assets/cards/${rank.toString()}_of_${suit}.svg`
   }
 
   value() {
-    if (this.rank === "Jack" || this.rank === "Queen" || this.rank === "King") {
+    if (this.rank === "jack" || this.rank === "queen" || this.rank === "king") {
       return 10;
-    } else if (this.rank === "Ace") {
+    } else if (this.rank === "ace") {
       return 11;
     } else {
       return this.rank;
@@ -35,8 +36,8 @@ class Deck {
   }
 
   createDeck() {
-    const suits = ["♥", "♦", "♣", "♠"];
-    const ranks = ["Ace", 2, 3, 4, 5, 6, 7, 8, 9, 10, "Jack", "Queen", "King"];
+    const suits = ["hearts", "diamonds", "clubs", "spades"];
+    const ranks = ["ace", 2, 3, 4, 5, 6, 7, 8, 9, 10, "jack", "queen", "king"];
 
     suits.forEach((suit) => {
       ranks.forEach((rank) => {
@@ -70,7 +71,7 @@ class Hand {
     let score = 0;
     this.hand.forEach((card) => {
       score = score + card.value();
-      if (card.rank === "Ace") {
+      if (card.rank === "ace") {
         aces++;
       }
     });
@@ -79,6 +80,7 @@ class Hand {
       score = score - 10;
       aces--;
     }
+     ;
     return score;
   }
 
@@ -100,20 +102,43 @@ class Game {
 
   start() {
     console.log("START: dealing cards");
+    document.querySelector('.player-cards').innerHTML = '';
+    document.querySelector('.dealer-cards').innerHTML = '';
     for (let i = 2; i > 0; i--) {
       let card = this.deck.cards.pop();
       this.playerHand.addCard(card);
+      this.displayCard(card, 'player');
       card = this.deck.cards.pop();
       this.dealerHand.addCard(card);
+      this.displayCard(card, 'dealer');
     }
     console.log("Player score:", this.playerHand.score());
     console.log("Dealer score:", this.dealerHand.score());
   }
 
+  displayCard(card, handType) {
+  let div;
+  let p;
+  
+  if(handType === 'player') {
+    div = document.querySelector('.player-cards');
+     p = document.querySelector('.player-total').innerHTML = `Score: ${this.playerHand.score()}`;
+  } else if(handType === 'dealer') {
+    div = document.querySelector('.dealer-cards');
+     p = document.querySelector('.dealer-total').innerHTML = `Score: ${this.dealerHand.score()}`;
+  }
+  
+  const img = document.createElement('img');
+  img.src = card.imageSrc;
+  img.classList.add('card');
+  div.appendChild(img);
+}
+
   hit() {
     console.log("HIT");
     let card = this.deck.cards.pop();
     this.playerHand.addCard(card);
+    this.displayCard(card, 'player');
 
     let score = this.playerHand.score();
     let result = this.playerHand.checkBust();
@@ -125,12 +150,19 @@ class Game {
     }
   }
 
-  stand() {
+  async stand() {
     console.log("STAND - Dealer's turn");
-    while (this.dealerHand.score() < 17) {
+   
+
+      while (this.dealerHand.score() < 17) {
       let card = this.deck.cards.pop();
-      this.dealerHand.addCard(card);
-    }
+      this.dealerHand.addCard(card);  
+      this.displayCard(card, 'dealer');
+      
+      console.log("Dealer score:", this.dealerHand.score());
+       await new Promise(resolve => setTimeout(resolve,   1000));
+      
+    } 
     let score = this.dealerHand.score();
     let result = this.dealerHand.checkBust();
     console.log("Dealer final score:", score);
@@ -164,10 +196,11 @@ class Game {
     this.dealerHand.hand = [];
     this.deck = new Deck();
     this.deck.createDeck();
-
+    
     hitBtn.disabled = true;
     standBtn.disabled = true;
     playAgain.style.display = "block";
+
   }
 }
 
