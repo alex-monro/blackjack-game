@@ -66,10 +66,19 @@ class Hand {
   }
 
   score() {
+    let aces = 0;
     let score = 0;
     this.hand.forEach((card) => {
       score = score + card.value();
+      if (card.rank === "Ace") {
+        aces++;
+      }
     });
+
+    while (score > 21 && aces > 0) {
+      score = score - 10;
+      aces--;
+    }
     return score;
   }
 
@@ -90,21 +99,25 @@ class Game {
   }
 
   start() {
+    console.log("START: dealing cards");
     for (let i = 2; i > 0; i--) {
       let card = this.deck.cards.pop();
       this.playerHand.addCard(card);
       card = this.deck.cards.pop();
       this.dealerHand.addCard(card);
     }
+    console.log("Player score:", this.playerHand.score());
+    console.log("Dealer score:", this.dealerHand.score());
   }
 
   hit() {
+    console.log("HIT");
     let card = this.deck.cards.pop();
     this.playerHand.addCard(card);
 
     let score = this.playerHand.score();
     let result = this.playerHand.checkBust();
-    console.log(score, result);
+    console.log("Player score:", score, result);
 
     if (result === "busted") {
       console.log("YOU BUSTED!");
@@ -113,11 +126,40 @@ class Game {
   }
 
   stand() {
-    let card = this.deck.cards.pop();
-    this.dealerHand.addCard(card);
+    console.log("STAND - Dealer's turn");
+    while (this.dealerHand.score() < 17) {
+      let card = this.deck.cards.pop();
+      this.dealerHand.addCard(card);
+    }
+    let score = this.dealerHand.score();
+    let result = this.dealerHand.checkBust();
+    console.log("Dealer final score:", score);
+
+    if (result === "busted") {
+      console.log("Dealer Busted, you win!");
+      this.reset();
+    } else {
+      this.results();
+    }
+  }
+
+  results() {
+    let playerScore = this.playerHand.score();
+    let dealerScore = this.dealerHand.score();
+    console.log("RESULTS - Player:", playerScore, "Dealer:", dealerScore);
+
+    if (playerScore > dealerScore) {
+      console.log("Player wins!");
+    } else if (dealerScore > playerScore) {
+      console.log("Dealer wins!");
+    } else {
+      console.log("Push!");
+    }
+    this.reset();
   }
 
   reset() {
+    console.log("RESET");
     this.playerHand.hand = [];
     this.dealerHand.hand = [];
     this.deck = new Deck();
@@ -138,25 +180,23 @@ dealerHand = new Hand();
 
 // Event listeners
 playBtn.addEventListener("click", () => {
+  console.log("=== PLAY CLICKED ===");
   introScrn.style.display = "none";
   gameContainer.style.pointerEvents = "auto";
   game = new Game(deck, playerHand, dealerHand);
   game.start();
-  console.log(playerHand);
-  console.log(deck);
 });
 
 hitBtn.addEventListener("click", () => {
   game.hit();
-  console.log(playerHand);
 });
 
 standBtn.addEventListener("click", () => {
   game.stand();
-  console.log(dealerHand);
 });
 
 playAgain.addEventListener("click", () => {
+  console.log("=== PLAY AGAIN CLICKED ===");
   playAgain.style.display = "none";
   hitBtn.disabled = false;
   standBtn.disabled = false;
