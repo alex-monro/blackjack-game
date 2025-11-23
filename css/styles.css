@@ -10,14 +10,38 @@
   align-content: center;
 }
 .game-container {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
+  display: grid;
+  grid-template-columns: repeat(1, 1fr);
+
   align-items: center;
   width: 100vw;
   height: 100vh;
+  background-color: #0F212E;
+  color: #FFFFFF;
+  
 }
 
 #play-again {
   display: none;
+}
+.player-area{
+  grid-row: span 2;
+    margin: 0 auto;
+}
+.dealer-area {
+    grid-row: span 2;
+    margin: 0 auto;
+}
+
+.controls{
+  margin: 0 auto;
+}
+
+.dealer-cards{
+ display: flex;
+
+}
+
+.dealer-cards img,  .player-cards img{
+  height: 12rem;
 }
