@@ -1,12 +1,20 @@
-//Starting Screen
+//DOM elements
 const introScrn = document.querySelector(".intro-screen");
 const playBtn = document.getElementById("play-btn");
 const gameContainer = document.querySelector(".game-container");
 const hitBtn = document.getElementById("hit-btn");
 const standBtn = document.getElementById("stand-btn");
 const dealBtn = document.getElementById("deal-btn");
-const dealerScore = document.querySelector(".dealer-total");
-const playerScore = document.querySelector(".player-total");
+const dealerScoreEl = document.querySelector(".dealer-total");
+const playerScoreEl = document.querySelector(".player-total");
+const deckEl = document.querySelector(".deck");
+const playerCardsContainer = document.querySelector(".player-cards");
+const dealerCardsContainer = document.querySelector(".dealer-cards");
+
+//Card Back Source
+const cardBackSrc = "assets/cards/card_back.png";
+
+//Game variables
 
 let deck;
 let playerHand;
@@ -102,10 +110,9 @@ class Game {
     this.dealerHand = dealerHand;
   }
 
-  start() {
-    console.log("START: dealing cards");
-    document.querySelector(".player-cards").innerHTML = "";
-    document.querySelector(".dealer-cards").innerHTML = "";
+  async start() {
+    playerCardsContainer.innerHTML = "";
+    dealerCardsContainer.innerHTML = "";
     dealBtn.disabled = true;
     hitBtn.disabled = false;
     standBtn.disabled = false;
@@ -113,51 +120,14 @@ class Game {
       let card = this.deck.cards.pop();
       this.playerHand.addCard(card);
       this.displayCard(card, "player");
+      await new Promise((r) => setTimeout(r, 400));
       card = this.deck.cards.pop();
       this.dealerHand.addCard(card);
       this.displayCard(card, "dealer");
+      await new Promise((r) => setTimeout(r, 400));
     }
     console.log("Player score:", this.playerHand.score());
     console.log("Dealer score:", this.dealerHand.score());
-  }
-
-  displayCard(card, handType) {
-    let cardContainer;
-    if (handType === "player") {
-      cardContainer = document.querySelector(".player-cards");
-      playerScore.innerHTML = `${this.playerHand.score()}`;
-    } else {
-      cardContainer = document.querySelector(".dealer-cards");
-      if (this.dealerHand.hand.length === 2) {
-        dealerScore.innerHTML = `${this.dealerHand.hand[1].value()}`;
-      }
-    }
-
-    const cardWrapper = document.createElement("div");
-    cardWrapper.classList.add("card-wrapper");
-
-    const cardBack = document.createElement("img");
-    cardBack.src = "assets/cards/card_back.png";
-    cardBack.classList.add("card-back");
-
-    const cardFront = document.createElement("img");
-    cardFront.src = card.imageSrc;
-    cardFront.classList.add("card-front");
-
-    cardWrapper.appendChild(cardBack);
-    cardWrapper.appendChild(cardFront);
-
-    if (this.dealerHand.hand.length === 1 && handType === "dealer") {
-      cardWrapper.classList.add("hidden-card");
-    }
-
-    cardContainer.appendChild(cardWrapper);
-  }
-
-  revealCard() {
-    const hiddenCard = document.querySelector(".hidden-card");
-    hiddenCard.classList.add("reveal");
-    dealerScore.innerHTML = `${this.dealerHand.score()}`;
   }
 
   hit() {
@@ -171,7 +141,7 @@ class Game {
     console.log("Player score:", score, result);
 
     if (result === "busted") {
-      dealerScore.innerHTML = `Bust`;
+      dealerScoreEl.innerHTML = `Bust`;
       console.log("YOU BUSTED!");
       this.revealCard();
       hitBtn.disabled = true;
@@ -186,14 +156,76 @@ class Game {
 
     while (this.dealerHand.score() < 17) {
       await new Promise((resolve) => setTimeout(resolve, 1000));
-      dealerScore.innerHTML = `Score: ${this.dealerHand.score()}`;
+      dealerScoreEl.innerHTML = `Score: ${this.dealerHand.score()}`;
       let card = this.deck.cards.pop();
       this.dealerHand.addCard(card);
       this.displayCard(card, "dealer");
-      dealerScore.innerHTML = `Score: ${this.dealerHand.score()}`;
+      dealerScoreEl.innerHTML = `Score: ${this.dealerHand.score()}`;
     }
 
     this.results();
+  }
+
+  displayCard(card, handType) {
+    let cardContainer;
+    if (handType === "player") {
+      cardContainer = playerCardsContainer;
+      playerScoreEl.innerHTML = `${this.playerHand.score()}`;
+    } else {
+      cardContainer = dealerCardsContainer;
+      if (this.dealerHand.hand.length === 2) {
+        dealerScoreEl.innerHTML = `${this.dealerHand.hand[1].value()}`;
+      }
+    }
+
+    const cardWrapper = document.createElement("div");
+    cardWrapper.classList.add("card-wrapper");
+
+    const cardBack = document.createElement("img");
+    cardBack.src = cardBackSrc;
+    cardBack.classList.add("card-back");
+
+    const cardFront = document.createElement("img");
+    cardFront.src = card.imageSrc;
+    cardFront.classList.add("card-front");
+
+    cardWrapper.appendChild(cardBack);
+    cardWrapper.appendChild(cardFront);
+
+    if (this.dealerHand.hand.length === 1 && handType === "dealer") {
+      cardWrapper.classList.add("hidden-card");
+    }
+
+    cardContainer.appendChild(cardWrapper);
+    this.animateCard(cardWrapper);
+  }
+
+  animateCard(cardWrapper) {
+    const deckLocation = deckEl.getBoundingClientRect();
+    const cardLocation = cardWrapper.getBoundingClientRect();
+
+    const xDistance = deckLocation.left - cardLocation.left;
+    const yDistance = deckLocation.top - cardLocation.top;
+    cardWrapper.style.transform = `translate(${xDistance}px, ${yDistance}px)`;
+    cardWrapper.getBoundingClientRect();
+
+    if (cardWrapper.classList.contains("hidden-card")) {
+      requestAnimationFrame(() => {
+        cardWrapper.style.transition = "transform .4s ease-out";
+        cardWrapper.style.transform = `translate(0, 0) rotateY(0deg)`;
+      });
+    } else {
+      requestAnimationFrame(() => {
+        cardWrapper.style.transition = "transform .4s ease-out";
+        cardWrapper.style.transform = "translate(0, 0) rotateY(180deg)";
+      });
+    }
+  }
+
+  revealCard() {
+    const hiddenCard = document.querySelector(".hidden-card");
+    hiddenCard.classList.add("reveal");
+    dealerScoreEl.innerHTML = `${this.dealerHand.score()}`;
   }
 
   results() {
@@ -207,24 +239,24 @@ class Game {
 
     if (this.playerHand.checkBust() === "busted") {
       console.log("Player busted! Dealer wins!");
-      playerScore.innerHTML = "Bust";
-      dealerScore.innerHTML = "Win";
+      playerScoreEl.innerHTML = "Bust";
+      dealerScoreEl.innerHTML = "Win";
     } else if (this.dealerHand.checkBust() === "busted") {
       console.log("Dealer busted! Player wins!");
-      playerScore.innerHTML = "Win";
-      dealerScore.innerHTML = "Bust";
+      playerScoreEl.innerHTML = "Win";
+      dealerScoreEl.innerHTML = "Bust";
     } else if (playerScoreValue > dealerScoreValue) {
       console.log("Player wins!");
-      playerScore.innerHTML = "Win";
-      dealerScore.innerHTML = "Lose";
+      playerScoreEl.innerHTML = "Win";
+      dealerScoreEl.innerHTML = "Lose";
     } else if (dealerScoreValue > playerScoreValue) {
       console.log("Dealer wins!");
-      playerScore.innerHTML = "Lose";
-      dealerScore.innerHTML = "Win";
+      playerScoreEl.innerHTML = "Lose";
+      dealerScoreEl.innerHTML = "Win";
     } else {
       console.log("Push!");
-      playerScore.innerHTML = "Push";
-      dealerScore.innerHTML = "Push";
+      playerScoreEl.innerHTML = "Push";
+      dealerScoreEl.innerHTML = "Push";
     }
   }
 
@@ -234,8 +266,8 @@ class Game {
     this.dealerHand.hand = [];
     this.deck = new Deck();
     this.deck.createDeck();
-    playerScore.innerHTML = "";
-    dealerScore.innerHTML = "";
+    playerScoreEl.innerHTML = "";
+    dealerScoreEl.innerHTML = "";
     hitBtn.disabled = true;
     standBtn.disabled = true;
     dealBtn.disabled = false;
@@ -266,8 +298,8 @@ standBtn.addEventListener("click", () => {
 dealBtn.addEventListener("click", () => {
   if (!game) {
     game = new Game(deck, playerHand, dealerHand);
-    dealerScore.hidden = false;
-    playerScore.hidden = false;
+    dealerScoreEl.hidden = false;
+    playerScoreEl.hidden = false;
   } else {
     game.reset();
   }
