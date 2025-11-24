@@ -5,43 +5,128 @@
   align-items: center;
   width: 100vw;
   height: 100vh;
+  z-index: 10000000;
 }
-.intro-text {
-  align-content: center;
-}
-.game-container {
-  display: grid;
-  grid-template-columns: repeat(1, 1fr);
 
+.game-container {
+  display: flex;
+  flex-direction: column;
+  align-content: center;
+  justify-content: center;
   align-items: center;
   width: 100vw;
   height: 100vh;
-  background-color: #0F212E;
-  color: #FFFFFF;
-  
+  background-color: #0f212e;
+  color: #ffffff;
 }
 
-#play-again {
-  display: none;
-}
-.player-area{
-  grid-row: span 2;
-    margin: 0 auto;
-}
-.dealer-area {
-    grid-row: span 2;
-    margin: 0 auto;
+.deck {
+  position: absolute;
+  top: -5rem;
+  right: 5%;
+  z-index: 100;
 }
 
-.controls{
-  margin: 0 auto;
+.dealer-area,
+.player-area {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
 }
 
-.dealer-cards{
- display: flex;
-
+.controls {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
 }
 
-.dealer-cards img,  .player-cards img{
-  height: 12rem;
+#deal-btn {
+  grid-column: span 2;
+}
+
+.dealer-cards,
+.player-cards {
+  display: flex;
+  gap: 0.5rem;
+  height: 11rem;
+}
+
+img {
+  height: 10rem;
+}
+
+.dealer-total,
+.player-total {
+  height: 1.5rem;
+}
+
+.card-wrapper {
+  position: relative;
+
+  width: fit-content;
+  height: 10rem;
+  transform-style: preserve-3d;
+  animation: dealAndFlip 2s ease-in forwards;
+  perspective: 200px;
+}
+
+.card-back,
+.card-front {
+  backface-visibility: hidden;
+}
+
+.card-back {
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform: rotateY(0deg);
+}
+
+.card-front {
+  display: block;
+  transform: rotateY(180deg);
+}
+
+.hidden-card {
+  animation: dealNoFlip 0.8s ease-out forwards;
+}
+
+.hidden-card.reveal {
+  animation: flipCard 0.6s forwards;
+}
+
+/* Normal animation: deal from deck face-down, then flip to face-up */
+@keyframes dealAndFlip {
+  0% {
+    transform: translate(30vw, -20vh) rotateY(0deg);
+  }
+
+  50% {
+    transform: translate(0, 0) rotateY(-180deg);
+  }
+
+  100% {
+    transform: translate(0, 0) rotateY(-180deg);
+  }
+}
+
+/* Hidden dealer card: deal from deck and stay face-down */
+@keyframes dealNoFlip {
+  from {
+    transform: translate(30vw, -20vh);
+  }
+  to {
+    transform: translate(0, 0);
+  }
+}
+
+/* Flip animation for revealing hidden card */
+@keyframes flipCard {
+  from {
+    transform: rotateY(0deg);
+  }
+  to {
+    transform: rotateY(180deg);
+  }
 }

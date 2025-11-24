@@ -4,7 +4,9 @@ const playBtn = document.getElementById("play-btn");
 const gameContainer = document.querySelector(".game-container");
 const hitBtn = document.getElementById("hit-btn");
 const standBtn = document.getElementById("stand-btn");
-const playAgain = document.getElementById("play-again");
+const dealBtn = document.getElementById("deal-btn");
+const dealerScore = document.querySelector(".dealer-total");
+const playerScore = document.querySelector(".player-total");
 
 let deck;
 let playerHand;
@@ -16,7 +18,7 @@ class Card {
   constructor(suit, rank) {
     this.suit = suit;
     this.rank = rank;
-    this.imageSrc = `assets/cards/${rank.toString()}_of_${suit}.svg`
+    this.imageSrc = `assets/cards/${rank.toString()}_of_${suit}.svg`;
   }
 
   value() {
@@ -69,7 +71,7 @@ class Hand {
   score() {
     let aces = 0;
     let score = 0;
-  
+
     this.hand.forEach((card) => {
       score = score + card.value();
       if (card.rank === "ace") {
@@ -81,7 +83,6 @@ class Hand {
       score = score - 10;
       aces--;
     }
-     ;
     return score;
   }
 
@@ -103,123 +104,128 @@ class Game {
 
   start() {
     console.log("START: dealing cards");
-    document.querySelector('.player-cards').innerHTML = '';
-    document.querySelector('.dealer-cards').innerHTML = '';
-    playAgain.style.display = "none";
+    document.querySelector(".player-cards").innerHTML = "";
+    document.querySelector(".dealer-cards").innerHTML = "";
+    dealBtn.disabled = true;
     hitBtn.disabled = false;
     standBtn.disabled = false;
     for (let i = 2; i > 0; i--) {
       let card = this.deck.cards.pop();
       this.playerHand.addCard(card);
-      this.displayCard(card, 'player');
+      this.displayCard(card, "player");
       card = this.deck.cards.pop();
       this.dealerHand.addCard(card);
-      this.displayCard(card, 'dealer');
+      this.displayCard(card, "dealer");
     }
     console.log("Player score:", this.playerHand.score());
     console.log("Dealer score:", this.dealerHand.score());
   }
 
   displayCard(card, handType) {
-  let div;
-  let p;
-  if(handType === 'player') {
-    div = document.querySelector('.player-cards');
-     p = document.querySelector('.player-total').innerHTML = `Score: ${this.playerHand.score()}`;
-  }else {
-      div = document.querySelector('.dealer-cards');
-  }
-
-
-    if (this.dealerHand.hand.length === 2){
-      p = document.querySelector('.dealer-total').innerHTML = `Score: ${this.dealerHand.hand[1].value()}`;
+    let cardContainer;
+    if (handType === "player") {
+      cardContainer = document.querySelector(".player-cards");
+      playerScore.innerHTML = `${this.playerHand.score()}`;
+    } else {
+      cardContainer = document.querySelector(".dealer-cards");
+      if (this.dealerHand.hand.length === 2) {
+        dealerScore.innerHTML = `${this.dealerHand.hand[1].value()}`;
+      }
     }
 
-  const img = document.createElement('img');
-  if(this.dealerHand.hand.length === 1 && handType === 'dealer'){
-    img.src = "assets/cards/card_back.png"
-  }else{
-  img.src = card.imageSrc;
-  }
-  img.classList.add('card');
-  div.appendChild(img);
-  console.log(this.dealerHand.hand.length);
+    const cardWrapper = document.createElement("div");
+    cardWrapper.classList.add("card-wrapper");
+
+    const cardBack = document.createElement("img");
+    cardBack.src = "assets/cards/card_back.png";
+    cardBack.classList.add("card-back");
+
+    const cardFront = document.createElement("img");
+    cardFront.src = card.imageSrc;
+    cardFront.classList.add("card-front");
+
+    cardWrapper.appendChild(cardBack);
+    cardWrapper.appendChild(cardFront);
+
+    if (this.dealerHand.hand.length === 1 && handType === "dealer") {
+      cardWrapper.classList.add("hidden-card");
+    }
+
+    cardContainer.appendChild(cardWrapper);
   }
 
-  revealCard(){
-  const card = this.dealerHand.hand[0];
-  document.querySelectorAll('.dealer-cards img')[0].src = card.imageSrc;
-  const dealerScore = document.querySelector('.dealer-total');
-  dealerScore.innerHTML = `Score: ${this.dealerHand.score()}`
+  revealCard() {
+    const hiddenCard = document.querySelector(".hidden-card");
+    hiddenCard.classList.add("reveal");
+    dealerScore.innerHTML = `${this.dealerHand.score()}`;
   }
-    
-
 
   hit() {
     console.log("HIT");
     let card = this.deck.cards.pop();
     this.playerHand.addCard(card);
-    this.displayCard(card, 'player');
+    this.displayCard(card, "player");
 
     let score = this.playerHand.score();
     let result = this.playerHand.checkBust();
     console.log("Player score:", score, result);
 
     if (result === "busted") {
+      dealerScore.innerHTML = `Bust`;
       console.log("YOU BUSTED!");
-    this.revealCard();
-  hitBtn.disabled = true;
-  standBtn.disabled = true;
-  playAgain.style.display = "block";
-    }
-  }
-
-  async stand() {
-   
-    this.revealCard();
-    
-     
-      while (this.dealerHand.score() < 17) {
-        await new Promise(resolve => setTimeout(resolve,   1000));
-      const dealerScore = document.querySelector('.dealer-total');
-      dealerScore.innerHTML = `Score: ${this.dealerHand.score()}`;
-      let card = this.deck.cards.pop();
-      this.dealerHand.addCard(card);  
-      this.displayCard(card, 'dealer');
-       dealerScore.innerHTML = `Score: ${this.dealerHand.score()}`
-     
-       
-     
-    }
-     
-    let score = this.dealerHand.score();
-    let result = this.dealerHand.checkBust();
-    console.log("Dealer final score:", score);
-
-    if (result === "busted") {
-      console.log("Dealer Busted, you win!");
-       this.revealCard();
-      this.reset();
-    } else {
+      this.revealCard();
+      hitBtn.disabled = true;
+      standBtn.disabled = true;
+      dealBtn.disabled = false;
       this.results();
     }
   }
 
-  results() {
-     this.revealCard();
-    
-    let playerScore = this.playerHand.score();
-    let dealerScore = this.dealerHand.score();
-    console.log("RESULTS - Player:", playerScore, "Dealer:", dealerScore);
+  async stand() {
+    this.revealCard();
 
-    if (playerScore > dealerScore) {
+    while (this.dealerHand.score() < 17) {
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+      dealerScore.innerHTML = `Score: ${this.dealerHand.score()}`;
+      let card = this.deck.cards.pop();
+      this.dealerHand.addCard(card);
+      this.displayCard(card, "dealer");
+      dealerScore.innerHTML = `Score: ${this.dealerHand.score()}`;
+    }
+
+    this.results();
+  }
+
+  results() {
+    this.revealCard();
+    hitBtn.disabled = true;
+    standBtn.disabled = true;
+    dealBtn.disabled = false;
+
+    let playerScoreValue = this.playerHand.score();
+    let dealerScoreValue = this.dealerHand.score();
+
+    if (this.playerHand.checkBust() === "busted") {
+      console.log("Player busted! Dealer wins!");
+      playerScore.innerHTML = "Bust";
+      dealerScore.innerHTML = "Win";
+    } else if (this.dealerHand.checkBust() === "busted") {
+      console.log("Dealer busted! Player wins!");
+      playerScore.innerHTML = "Win";
+      dealerScore.innerHTML = "Bust";
+    } else if (playerScoreValue > dealerScoreValue) {
       console.log("Player wins!");
-    } else if (dealerScore > playerScore) {
+      playerScore.innerHTML = "Win";
+      dealerScore.innerHTML = "Lose";
+    } else if (dealerScoreValue > playerScoreValue) {
       console.log("Dealer wins!");
+      playerScore.innerHTML = "Lose";
+      dealerScore.innerHTML = "Win";
     } else {
       console.log("Push!");
+      playerScore.innerHTML = "Push";
+      dealerScore.innerHTML = "Push";
     }
-    this.reset();
   }
 
   reset() {
@@ -228,11 +234,11 @@ class Game {
     this.dealerHand.hand = [];
     this.deck = new Deck();
     this.deck.createDeck();
-    
+    playerScore.innerHTML = "";
+    dealerScore.innerHTML = "";
     hitBtn.disabled = true;
     standBtn.disabled = true;
-    playAgain.style.display = "block";
-
+    dealBtn.disabled = false;
   }
 }
 
@@ -247,8 +253,6 @@ dealerHand = new Hand();
 playBtn.addEventListener("click", () => {
   introScrn.style.display = "none";
   gameContainer.style.pointerEvents = "auto";
-  game = new Game(deck, playerHand, dealerHand);
-  game.start();
 });
 
 hitBtn.addEventListener("click", () => {
@@ -259,9 +263,16 @@ standBtn.addEventListener("click", () => {
   game.stand();
 });
 
-playAgain.addEventListener("click", () => {
-  game.reset();
-  playAgain.style.display = "none";
+dealBtn.addEventListener("click", () => {
+  if (!game) {
+    game = new Game(deck, playerHand, dealerHand);
+    dealerScore.hidden = false;
+    playerScore.hidden = false;
+  } else {
+    game.reset();
+  }
+
+  dealBtn.disabled = true;
   hitBtn.disabled = false;
   standBtn.disabled = false;
   game.start();
