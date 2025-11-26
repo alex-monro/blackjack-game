@@ -168,6 +168,7 @@ class Game {
 
   displayCard(card, handType) {
     let cardContainer;
+
     if (handType === "player") {
       cardContainer = playerCardsContainer;
       playerScoreEl.innerHTML = `${this.playerHand.score()}`;
@@ -183,11 +184,11 @@ class Game {
 
     const cardBack = document.createElement("img");
     cardBack.src = cardBackSrc;
-    cardBack.classList.add("card-back");
+    cardBack.classList.add("card-back", "card-img");
 
     const cardFront = document.createElement("img");
     cardFront.src = card.imageSrc;
-    cardFront.classList.add("card-front");
+    cardFront.classList.add("card-front", "card-img");
 
     cardWrapper.appendChild(cardBack);
     cardWrapper.appendChild(cardFront);
@@ -284,7 +285,9 @@ dealerHand = new Hand();
 // Event listeners
 playBtn.addEventListener("click", () => {
   introScrn.style.display = "none";
+  introScrn.style.pointerEvents = "none";
   gameContainer.style.pointerEvents = "auto";
+  gameContainer.style.display = "block";
 });
 
 hitBtn.addEventListener("click", () => {

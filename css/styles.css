@@ -6,41 +6,109 @@
   width: 100vw;
   height: 100vh;
   z-index: 10000000;
+  background-position: center;
+}
+.intro-screen img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+h2 {
+  font-size: 1.4rem;
+}
+#play-btn {
+  position: absolute;
+  bottom: 25%;
+  background: none;
+  border: none;
+  cursor: pointer;
+  max-width: 200px;
 }
 
 .game-container {
-  display: flex;
-  flex-direction: column;
+  display: none;
   align-content: center;
   justify-content: center;
   align-items: center;
+  color: #ffffff;
+  position: relative;
   width: 100vw;
   height: 100vh;
-  background-color: #0f212e;
-  color: #ffffff;
-}
 
+  background-image: url("../assets/images/blackjacktable.svg");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
 .deck {
   position: absolute;
   top: -5rem;
-  right: 5%;
+  right: 20%;
   z-index: 100;
 }
-
-.dealer-area,
-.player-area {
+.game-content {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: 1fr 1fr 1fr 1fr;
+  gap: 8px;
+  align-items: center;
+  height: 100vh;
+  width: 100vw;
+  padding: 2rem;
+}
+.dealer-area {
+  grid-column: span 3 / span 3;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.5rem;
+  justify-content: flex-end;
+}
+.player-area {
+  grid-column: span 3 / span 3;
+  grid-column-start: 1;
+  grid-row-start: 3;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }
 
 .controls {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 8px;
+  grid-column-start: 2;
+  grid-row-start: 4;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex-direction: row;
+  gap: 1rem;
+  margin: 0;
+}
+.cntrols-btn {
+  padding: 0.5rem 1rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  font-family: sans-serif;
+  background-color: #305069;
+  color: white;
+  width: 120px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin: 0;
+  display: block;
 }
 
+.cntrols-btn:disabled {
+  opacity: 0.3;
+  pointer-events: none;
+}
 #deal-btn {
   grid-column: span 2;
 }
@@ -48,25 +116,40 @@
 .dealer-cards,
 .player-cards {
   display: flex;
-  gap: 0.5rem;
-  height: 11rem;
+  gap: 0.3rem;
   flex-wrap: nowrap;
   transition: all 0.3s ease-out;
+  height: 12rem;
 }
 
-img {
-  height: 10rem;
+.card-img,
+.deck-img {
+  max-height: 12rem;
 }
 
 .dealer-total,
 .player-total {
-  height: 1.5rem;
+  background-color: rgb(22, 44, 57);
+  backdrop-filter: blur(10px);
+  padding: 0.4rem 1rem;
+  border-radius: 20px;
+  min-width: 6rem;
+  text-align: center;
+  font-weight: 700;
+  font-size: 1.1rem;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  min-height: 2.4rem;
+  justify-content: center;
+}
+.player-area {
+  padding-top: 2rem;
 }
 
 .card-wrapper {
   position: relative;
   width: fit-content;
-  height: 10rem;
+  max-height: 12rem;
   transform-style: preserve-3d;
 }
 
@@ -89,10 +172,6 @@ img {
 .card-front {
   display: block;
   transform: rotateY(180deg);
-}
-
-.hidden-card {
-  animation: dealNoFlip 0.8s ease-out forwards;
 }
 
 .hidden-card.reveal {

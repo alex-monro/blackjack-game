@@ -18,31 +18,40 @@
   </head>
   <body>
     <div class="intro-screen">
-      <div class="intro-text"></div>
-      <h1>Blackjack</h1>
-      <button id="play-btn">Play</button>
+      <img
+        src="assets/images/4x/4x/Artboard 1@4x.png"
+        alt="title-sc
+      reen"
+      />
+      <button id="play-btn"><img src="assets/playbtn.svg" alt="" /></button>
     </div>
 
     <main class="game-container">
       <div class="deck">
-        <img src="assets/cards/deck.png" alt="Deck of Cards" />
+        <img src="assets/cards/deck.png" alt="Deck of Cards" class="deck-img" />
       </div>
-      <div class="dealer-area">
-        <h2>Dealer</h2>
-        <div class="dealer-cards"></div>
-        <p class="dealer-total"></p>
-      </div>
+      <div class="game-content">
+        <div class="dealer-area">
+          <div class="dealer-outcome"></div>
+          <div class="dealer-cards"></div>
+          <p class="dealer-total"></p>
+        </div>
 
-      <div class="player-area">
-        <h2>Player</h2>
-        <div class="player-cards"></div>
-        <p class="player-total"></p>
-      </div>
+        <div class="player-area">
+          <h2>Hand</h2>
+          <div class="player-cards"></div>
+          <p class="player-total"></p>
+        </div>
 
-      <div class="controls">
-        <button id="hit-btn">Hit</button>
-        <button id="stand-btn">Stand</button>
-        <button id="deal-btn">Deal</button>
+        <div class="controls">
+          <button id="hit-btn" class="cntrols-btn">Hit</button>
+          <button id="stand-btn" class="cntrols-btn">Stand</button>
+          <button id="deal-btn" class="cntrols-btn">Deal</button>
+          </div>
+          
+     
+       
+        </div>
       </div>
     </main>
   </body>
