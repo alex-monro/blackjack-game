@@ -156,11 +156,11 @@ class Game {
 
     while (this.dealerHand.score() < 17) {
       await new Promise((resolve) => setTimeout(resolve, 1000));
-      dealerScoreEl.innerHTML = `Score: ${this.dealerHand.score()}`;
+      dealerScoreEl.innerHTML = `${this.dealerHand.score()}`;
       let card = this.deck.cards.pop();
       this.dealerHand.addCard(card);
       this.displayCard(card, "dealer");
-      dealerScoreEl.innerHTML = `Score: ${this.dealerHand.score()}`;
+      dealerScoreEl.innerHTML = `${this.dealerHand.score()}`;
     }
 
     this.results();
@@ -259,6 +259,16 @@ class Game {
       playerScoreEl.innerHTML = "Push";
       dealerScoreEl.innerHTML = "Push";
     }
+    if(playerScoreEl.innerHTML==="Win" || playerScoreEl.innerHTML==="blackjack"){
+      playerScoreEl.style.borderColor="green";
+      dealerScoreEl.style.borderColor="red";
+    }else if(playerScoreEl.innerHTML==="Lose" || playerScoreEl.innerHTML==="Bust" ){
+      playerScoreEl.style.borderColor="red";
+      dealerScoreEl.style.borderColor="green";
+    }else{
+      playerScoreEl.style.borderColor="yellow";
+      dealerScoreEl.style.borderColor="yellow";
+    }
   }
 
   reset() {
@@ -272,6 +282,8 @@ class Game {
     hitBtn.disabled = true;
     standBtn.disabled = true;
     dealBtn.disabled = false;
+    playerScoreEl.style.borderColor="#FFFFFF33";
+    dealerScoreEl.style.borderColor="#FFFFFF33";
   }
 }
 
@@ -288,6 +300,10 @@ playBtn.addEventListener("click", () => {
   introScrn.style.pointerEvents = "none";
   gameContainer.style.pointerEvents = "auto";
   gameContainer.style.display = "block";
+  hitBtn.disabled = true;
+  standBtn.disabled = true;
+   playerScoreEl.innerHTML = "Player";
+      dealerScoreEl.innerHTML = "Dealer";
 });
 
 hitBtn.addEventListener("click", () => {
